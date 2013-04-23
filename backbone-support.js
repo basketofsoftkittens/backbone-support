@@ -1,4 +1,4 @@
-define('backbone-support', ['backbone'], function(){
+define('backbone-support', ['backbone'], function(Backbone){
     Support = {};
     Support.VERSION = "0.0.1";
 
