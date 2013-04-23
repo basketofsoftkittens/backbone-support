@@ -1,4 +1,4 @@
-define('backbone-support', ['backbone'], function(Backbone){
+define('Backbone-support', ['Backbone'], function(Backbone){
     Support = {};
     Support.VERSION = "0.0.1";
 
@@ -21,9 +21,9 @@ define('backbone-support', ['backbone'], function(Backbone){
     });
 
     // Composite Views
-    Support.CompositeView = function(options) {
+    Support.CompositeView = function() {
       this.children = _([]);
-      Backbone.View.apply(this, [options]);
+      Backbone.View.apply(this, arguments);
     };
 
     _.extend(Support.CompositeView.prototype, Backbone.View.prototype, Support.Observer.prototype, {
@@ -38,8 +38,24 @@ define('backbone-support', ['backbone'], function(Backbone){
 
       renderChild: function(view) {
         view.render();
+        this.adoptChild(view);
+      },
+
+      adoptChild:function(view){
         this.children.push(view);
         view.parent = this;
+      },
+
+      attachChild:function(selector, view) {
+        // arity
+        if (!view && selector) {
+            view = selector;
+            var $el = this.$el;
+        } else {
+            var $el = this.$el.find(selector);
+        }
+        this.adoptChild(view);
+        $el.append(view.el);
       },
 
       renderChildInto: function(view, container) {
@@ -49,7 +65,7 @@ define('backbone-support', ['backbone'], function(Backbone){
 
       appendChild: function(view) {
         this.renderChild(view);
-        $(this.el).append(view.el);
+        this.$el.append(view.el);
       },
 
       appendChildTo: function (view, container) {
@@ -59,7 +75,7 @@ define('backbone-support', ['backbone'], function(Backbone){
 
       prependChild: function(view) {
         this.renderChild(view);
-        $(this.el).prepend(view.el);
+        this.$el.prepend(view.el);
       },
 
       prependChildTo: function (view, container) {
