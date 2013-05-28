@@ -23,6 +23,7 @@ define('Backbone-support', ['Backbone'], function(Backbone){
     // Composite Views
     Support.CompositeView = function() {
       this.children = _([]);
+      this.currentView = false;
       Backbone.View.apply(this, arguments);
     };
 
@@ -34,6 +35,7 @@ define('Backbone-support', ['Backbone'], function(Backbone){
         this.remove();
         this._leaveChildren();
         this._removeFromParent();
+        return this;
       },
 
       renderChild: function(view) {
@@ -55,7 +57,8 @@ define('Backbone-support', ['Backbone'], function(Backbone){
             var $el = this.$el.find(selector);
         }
         this.adoptChild(view);
-        $el.append(view.el);
+        $el.empty().append(view.el);
+        return this;
       },
 
       renderChildInto: function(view, container) {
@@ -98,28 +101,20 @@ define('Backbone-support', ['Backbone'], function(Backbone){
       _removeChild: function(view) {
         var index = this.children.indexOf(view);
         this.children.splice(index, 1);
-      }
-    });
-
-    Support.CompositeView.extend = Backbone.View.extend;
-
-    Support.SwappingRouter = function(options) {
-      Backbone.Router.apply(this, arguments);
-    };
-
-    _.extend(Support.SwappingRouter.prototype, Backbone.Router.prototype, {
+      },
       swap: function(newView) {
         if (this.currentView && this.currentView.leave) {
           this.currentView.leave();
         }
 
         this.currentView = newView;
-        $(this.el).empty().append(this.currentView.render().el);
+        this.attachChild(newView);
+        return this;
       }
     });
 
-    Support.SwappingRouter.extend = Backbone.Router.extend;
+    Support.CompositeView.extend = Backbone.View.extend;
+
 
     return Support;
 });
-
